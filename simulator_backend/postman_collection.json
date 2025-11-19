@@ -1,0 +1,287 @@
+{
+  "info": {
+    "name": "Device Sandbox Simulator API",
+    "description": "Complete API collection for Device Sandbox Simulator backend",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Devices",
+      "item": [
+        {
+          "name": "Get All Devices",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/devices",
+              "host": ["{{baseUrl}}"],
+              "path": ["devices"]
+            }
+          }
+        },
+        {
+          "name": "Create Light Device",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"type\": \"light\",\n  \"name\": \"Living Room Light\",\n  \"settings\": {\n    \"power\": true,\n    \"brightness\": 75,\n    \"colorTemperature\": \"warm\"\n  },\n  \"position_x\": 100,\n  \"position_y\": 150\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/devices",
+              "host": ["{{baseUrl}}"],
+              "path": ["devices"]
+            }
+          }
+        },
+        {
+          "name": "Create Fan Device",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"type\": \"fan\",\n  \"name\": \"Ceiling Fan\",\n  \"settings\": {\n    \"power\": true,\n    \"speed\": 60\n  },\n  \"position_x\": 300,\n  \"position_y\": 200\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/devices",
+              "host": ["{{baseUrl}}"],
+              "path": ["devices"]
+            }
+          }
+        },
+        {
+          "name": "Get Single Device",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/devices/1",
+              "host": ["{{baseUrl}}"],
+              "path": ["devices", "1"]
+            }
+          }
+        },
+        {
+          "name": "Update Device",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"settings\": {\n    \"power\": false,\n    \"brightness\": 50,\n    \"colorTemperature\": \"cool\"\n  }\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/devices/1",
+              "host": ["{{baseUrl}}"],
+              "path": ["devices", "1"]
+            }
+          }
+        },
+        {
+          "name": "Delete Device",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/devices/1",
+              "host": ["{{baseUrl}}"],
+              "path": ["devices", "1"]
+            }
+          }
+        },
+        {
+          "name": "Delete All Devices",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/devices",
+              "host": ["{{baseUrl}}"],
+              "path": ["devices"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Presets",
+      "item": [
+        {
+          "name": "Get All Presets",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/presets",
+              "host": ["{{baseUrl}}"],
+              "path": ["presets"]
+            }
+          }
+        },
+        {
+          "name": "Create Preset",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Movie Night\",\n  \"description\": \"Perfect settings for watching movies\",\n  \"devices\": [\n    {\n      \"type\": \"light\",\n      \"name\": \"Living Room Light\",\n      \"settings\": {\n        \"power\": true,\n        \"brightness\": 20,\n        \"colorTemperature\": \"warm\"\n      }\n    },\n    {\n      \"type\": \"fan\",\n      \"name\": \"Ceiling Fan\",\n      \"settings\": {\n        \"power\": true,\n        \"speed\": 30\n      }\n    }\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/presets",
+              "host": ["{{baseUrl}}"],
+              "path": ["presets"]
+            }
+          }
+        },
+        {
+          "name": "Get Single Preset",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/presets/1",
+              "host": ["{{baseUrl}}"],
+              "path": ["presets", "1"]
+            }
+          }
+        },
+        {
+          "name": "Load Preset",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/presets/1/load",
+              "host": ["{{baseUrl}}"],
+              "path": ["presets", "1", "load"]
+            }
+          }
+        },
+        {
+          "name": "Update Preset",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Updated Movie Night\",\n  \"description\": \"Updated settings for movie night\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/presets/1",
+              "host": ["{{baseUrl}}"],
+              "path": ["presets", "1"]
+            }
+          }
+        },
+        {
+          "name": "Delete Preset",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/presets/1",
+              "host": ["{{baseUrl}}"],
+              "path": ["presets", "1"]
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8000/api",
+      "type": "string"
+    }
+  ]
+}
