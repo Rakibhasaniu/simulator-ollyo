@@ -212,29 +212,6 @@ This will create all tables with the correct structure but no sample data.
 
 ---
 
-## Troubleshooting
-
-### Error: Database exists
-If the database already exists, drop it first:
-```sql
-DROP DATABASE simulator_backend;
-CREATE DATABASE simulator_backend;
-```
-
-Then import the dump again.
-
-### Error: Access denied
-Make sure you're using the correct MySQL username and password:
-```bash
-mysql -u root -p
-```
-
-### Error: Unknown collation
-If you get collation errors, try:
-```bash
-mysql -u root -p simulator_backend < database_dump.sql --default-character-set=utf8mb4
-```
-
 ### Check MySQL Version
 The dump was created with MySQL 8.x. If you're using an older version, you might need to adjust:
 ```bash
@@ -268,16 +245,4 @@ mysql -u root -p simulator_backend < database_dump.sql
 mysql -u root -p simulator_backend -e "SHOW TABLES;"
 ```
 
----
 
-## Database Credentials (from .env)
-
-```
-Host: 127.0.0.1
-Port: 3306
-Database: simulator_backend
-Username: root
-Password: RootPass#12345
-```
-
-**Note:** Change the password in production environments!

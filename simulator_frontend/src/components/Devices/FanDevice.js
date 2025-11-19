@@ -1,15 +1,32 @@
 import React from 'react';
 import { useDispatch } from 'react-redux';
-import { deleteDevice } from '../../store/devicesSlice';
+import { updateDevice } from '../../store/devicesSlice';
 import { toast } from 'react-toastify';
 
 const FanDevice = ({ device }) => {
   const dispatch = useDispatch();
   const { settings } = device;
 
-  const handleSpeedChange = (e) => {
+  const handleSpeedChange = async (e) => {
     const newSpeed = parseInt(e.target.value);
-    // Local state change only - update functionality removed
+    try {
+      await dispatch(updateDevice({
+        id: device.id,
+        deviceData: {
+          type: device.type,
+          name: device.name,
+          settings: {
+            ...settings,
+            speed: newSpeed,
+          },
+          position_x: device.position?.x || 100,
+          position_y: device.position?.y || 100,
+        },
+      })).unwrap();
+    } catch (error) {
+      console.error('Failed to update fan speed:', error);
+      toast.error('Failed to update fan speed');
+    }
   };
 
   const getRotationSpeed = () => {

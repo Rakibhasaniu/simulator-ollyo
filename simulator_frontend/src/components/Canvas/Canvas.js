@@ -11,9 +11,9 @@ import FanDevice from '../Devices/FanDevice';
 const Canvas = () => {
   const dispatch = useDispatch();
   const devices = useSelector((state) => state.devices.devices);
-  const presets = useSelector((state) => state.presets.presets);
   const [showPresetModal, setShowPresetModal] = useState(false);
   const [presetName, setPresetName] = useState('');
+  const [loadedFromPreset, setLoadedFromPreset] = useState(false);
 
   const [{ isOver, canDrop }, drop] = useDrop(() => ({
     accept: [ITEM_TYPES.DEVICE, ITEM_TYPES.PRESET],
@@ -37,36 +37,36 @@ const Canvas = () => {
           };
 
           await dispatch(createDevice(deviceData)).unwrap();
+          setLoadedFromPreset(false); // Reset flag when dragging a new device
         } catch (error) {
           console.error('Failed to create device:', error);
           toast.error('Failed to create device. Please try again.');
         }
       } else if (item.preset) {
         try {
-          // Get the latest preset data from Redux state instead of using stale dragged data
-          const freshPreset = presets.find(p => p.id === item.preset.id);
-          if (!freshPreset) {
-            toast.error('Preset not found');
+          // Use the preset data directly from the drag item since it has all the info we need
+          const preset = item.preset;
+
+          if (!preset.devices || !Array.isArray(preset.devices) || preset.devices.length === 0) {
+            toast.error('This preset has no devices');
             return;
           }
-
-          const presetDevices = freshPreset.devices;
 
           // Clear existing devices first
           await dispatch(deleteAllDevices()).unwrap();
 
           // Only load the first device from the preset (since we can only show one at a time)
-          if (presetDevices && presetDevices.length > 0) {
-            const device = presetDevices[0];
-            const deviceData = {
-              type: device.type,
-              name: device.name || `${device.type.charAt(0).toUpperCase() + device.type.slice(1)} Device`,
-              settings: device.settings,
-              position_x: device.position?.x || 100,
-              position_y: device.position?.y || 100,
-            };
-            await dispatch(createDevice(deviceData)).unwrap();
-          }
+          const device = preset.devices[0];
+          const deviceData = {
+            type: device.type,
+            name: device.name || `${device.type.charAt(0).toUpperCase() + device.type.slice(1)} Device`,
+            settings: device.settings,
+            position_x: device.position?.x || 100,
+            position_y: device.position?.y || 100,
+          };
+          await dispatch(createDevice(deviceData)).unwrap();
+          setLoadedFromPreset(true); // Mark that we loaded from a preset
+          toast.success(`Loaded preset: ${preset.name}`);
         } catch (error) {
           console.error('Failed to load preset:', error);
           toast.error('Failed to load preset. Please try again.');
@@ -112,6 +112,7 @@ const Canvas = () => {
     if (window.confirm('Are you sure you want to clear all devices?')) {
       try {
         await dispatch(deleteAllDevices()).unwrap();
+        setLoadedFromPreset(false); // Reset flag when clearing
       } catch (error) {
         console.error('Failed to clear devices:', error);
         toast.error('Failed to clear devices. Please try again.');
@@ -170,7 +171,7 @@ const Canvas = () => {
           </button>
           <button
             onClick={() => setShowPresetModal(true)}
-            disabled={devices.length === 0}
+            disabled={devices.length === 0 || loadedFromPreset}
             className="px-4 py-2 rounded-lg bg-accent-blue text-white text-sm font-medium cursor-pointer transition-all hover:bg-[#4a9ee0] disabled:opacity-50 disabled:cursor-not-allowed"
           >
             Save Preset

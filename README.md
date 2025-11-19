@@ -1,29 +1,34 @@
 # Device Sandbox Simulator
 
-A full-stack web application that allows users to interact with and control virtual devices (Light and Fan) inside a sandbox environment with drag-and-drop functionality, real-time device controls, and preset management.
+A full-stack IoT device simulator application that allows users to control virtual devices (lights and fans) and save/load device configurations as presets.
 
-## Features
+##  Features
 
-- **Drag & Drop Interface**: Intuitive device placement on canvas
-- **Virtual Devices**:
-  - **Light Device**: Power control, brightness slider (0-100%), color temperature selection (warm, neutral, cool, pink, blue, purple)
-  - **Fan Device**: Power control, speed slider (0-100%), animated fan blades
-- **Preset Management**: Save, load, and delete device configurations
+- **Drag & Drop Interface**: Intuitive drag-and-drop to add devices to the canvas
+- **Device Controls**:
+  - **Light Device**: Brightness control (0-100%) and color temperature (Warm, Neutral, Cool, Pink, Blue, Purple)
+  - **Fan Device**: Speed control (0-100%) with visual rotation animation
+- **Preset Management**:
+  - Save current device configurations as named presets
+  - Load saved presets to quickly restore device states
+  - Delete presets with confirmation dialog
+- **Real-time Updates**: All device changes are persisted to the backend database
+- **Modern UI**: Dark theme with smooth animations and toast notifications
 
-## Tech Stack
+## 🛠 Tech Stack
 
 ### Frontend
-- React 19 with Hooks
-- Redux Toolkit for state management
-- React DnD (Drag and Drop)
-- Axios for API calls
-- Tailwind CSS for styling
-- React Icons
+- **React 19** - Modern UI library
+- **Redux Toolkit** - State management with async thunks
+- **React DnD** - Drag and drop functionality
+- **Tailwind CSS** - Utility-first styling
+- **React Toastify** - Toast notifications
+- **Axios** - HTTP client
 
 ### Backend
-- Laravel 
-- MySQL Database
-- RESTful API architecture
+- **Laravel 10** - PHP framework
+- **MySQL** - Database
+- **RESTful API** - API architecture
 
 ## Project Structure
 
@@ -61,124 +66,204 @@ ollyo/
     └── .env                    # Backend environment variables
 ```
 
-## Installation & Setup
+## 📋 Prerequisites
 
-### Prerequisites
-- Node.js (v14 or higher)
-- PHP (v8.1 or higher)
-- Composer
-- MySQL
+- **Node.js** (v16 or higher)
+- **npm** or **yarn**
+- **PHP** (v8.1 or higher)
+- **Composer**
+- **MySQL** (v5.7 or higher)
 
-### Backend Setup
+## 🚀 Installation & Setup
 
-1. Navigate to the backend directory:
-   ```bash
-   cd simulator_backend
-   ```
+### 1. Database Setup
 
-2. Install PHP dependencies:
-   ```bash
-   composer install
-   ```
+#### Import the SQL dump
 
-3. Configure the database in `.env`:
-   ```
-   DB_CONNECTION=mysql
-   DB_HOST=127.0.0.1
-   DB_PORT=3306
-   DB_DATABASE=simulator_backend
-   DB_USERNAME=root
-   DB_PASSWORD=your_password
-   ```
+```bash
+# Login to MySQL
+mysql -u root -p
 
-4. Run database migrations:
-   ```bash
-   php artisan migrate
-   ```
+# Create database
+CREATE DATABASE simulator_backend;
+exit;
 
-5. Start the Laravel development server:
-   ```bash
-   php artisan serve
-   ```
-   The backend will run on `http://localhost:8000`
+# Import the SQL dump
+mysql -u root -p simulator_backend < simulator_database.sql
+```
 
-### Frontend Setup
+### 2. Backend Setup (Laravel)
 
-1. Navigate to the frontend directory:
-   ```bash
-   cd simulator_frontend
-   ```
+```bash
+# Navigate to backend directory
+cd simulator_backend
 
-2. Install Node.js dependencies:
-   ```bash
-   npm install
-   ```
+# Install dependencies
+composer install
 
-3. The `.env` file is already configured with:
-   ```
-   REACT_APP_API_URL=http://localhost:8000/api
-   ```
+# Copy environment file (if not exists)
+cp .env.example .env
 
-4. Start the React development server:
-   ```bash
-   npm start
-   ```
-   The frontend will run on `http://localhost:3000`
+# Configure .env file with your database credentials
+# Update these values:
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=simulator_backend
+DB_USERNAME=root
+DB_PASSWORD=your_password
 
-## API Endpoints
+# Generate application key
+php artisan key:generate
 
-### Device Endpoints
-- `GET /api/devices` - Get all devices
-- `POST /api/devices` - Create a new device
-- `GET /api/devices/{id}` - Get a specific device
-- `PUT /api/devices/{id}` - Update a device
-- `DELETE /api/devices/{id}` - Delete a device
-- `DELETE /api/devices` - Delete all devices
+# Start Laravel development server
+php artisan serve
+# Backend will run at: http://localhost:8000
+```
 
-### Preset Endpoints
-- `GET /api/presets` - Get all presets
-- `POST /api/presets` - Create a new preset
-- `GET /api/presets/{id}` - Get a specific preset
-- `PUT /api/presets/{id}` - Update a preset
-- `DELETE /api/presets/{id}` - Delete a preset
-- `GET /api/presets/{id}/load` - Load preset configuration
+### 3. Frontend Setup (React)
 
-## Database Schema
+```bash
+# Open a new terminal
+# Navigate to frontend directory
+cd simulator_frontend
 
-### `devices` Table
-- `id` - Primary key
-- `type` - Device type (light/fan)
-- `name` - Device name
-- `settings` - JSON field for device settings
-- `position_x` - X position on canvas
-- `position_y` - Y position on canvas
-- `created_at` - Timestamp
-- `updated_at` - Timestamp
+# Install dependencies
+npm install
 
-### `presets` Table
-- `id` - Primary key
-- `name` - Preset name
-- `description` - Preset description (nullable)
-- `devices` - JSON array of device configurations
-- `created_at` - Timestamp
-- `updated_at` - Timestamp
+# Create .env file (if not exists)
+echo "REACT_APP_API_URL=http://localhost:8000/api" > .env
 
-## Features in Detail
+# Start React development server
+npm start
+# Frontend will run at: http://localhost:3000
+```
+
+## 🔌 API Endpoints
+
+### Devices
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/api/devices` | Get all devices |
+| GET | `/api/devices/{id}` | Get single device |
+| POST | `/api/devices` | Create a new device |
+| PUT | `/api/devices/{id}` | Update device settings |
+| DELETE | `/api/devices/{id}` | Delete single device |
+| DELETE | `/api/devices` | Delete all devices |
+
+### Presets
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/api/presets` | Get all presets |
+| GET | `/api/presets/{id}` | Get single preset |
+| POST | `/api/presets` | Create a new preset |
+| PUT | `/api/presets/{id}` | Update preset |
+| DELETE | `/api/presets/{id}` | Delete preset |
+
+## 🎮 How to Use
+
+### Adding a Device
+1. Drag a **Light** or **Fan** device from the sidebar
+2. Drop it onto the canvas
+3. The device will be created and displayed
+
+### Controlling Devices
+- **Light**:
+  - Adjust brightness with the slider (0-100%)
+  - Click color buttons to change temperature
+- **Fan**:
+  - Adjust speed with the slider (0-100%)
+  - Watch the fan blades rotate based on speed
+
+### Saving Presets
+1. Configure your device settings
+2. Click **Save Preset** button
+3. Enter a preset name
+4. Click **Save**
+
+### Loading Presets
+1. Drag a saved preset from the sidebar
+2. Drop it onto the canvas
+3. The device will load with saved settings
+
+### Deleting Presets
+1. Click the trash icon on a preset
+2. Choose whether to also clear the canvas
+3. Confirm deletion
+
+## 📝 Database Schema
+
+### Devices Table
+```sql
+- id (bigint, primary key)
+- type (varchar) - 'light' or 'fan'
+- name (varchar)
+- settings (json) - device-specific settings
+- position_x (integer) - X position on canvas
+- position_y (integer) - Y position on canvas
+- created_at (timestamp)
+- updated_at (timestamp)
+```
+
+### Presets Table
+```sql
+- id (bigint, primary key)
+- name (varchar) - preset name
+- description (text, nullable)
+- devices (json) - array of device configurations
+- created_at (timestamp)
+- updated_at (timestamp)
+```
+
+## 🐛 Troubleshooting
+
+### Backend Issues
+
+**Port already in use:**
+```bash
+php artisan serve --port=8001
+# Update REACT_APP_API_URL to http://localhost:8001/api
+```
+
+**Database connection error:**
+- Verify MySQL is running
+- Check credentials in `.env`
+- Ensure database exists
+
+### Frontend Issues
+
+**Port 3000 already in use:**
+- The app will prompt to use port 3001
+- Or manually set: `PORT=3001 npm start`
+
+**API connection error:**
+- Verify backend is running at http://localhost:8000
+- Check REACT_APP_API_URL in `.env`
+- Check browser console for CORS errors
+
+## 🚦 Current Features
+
+-  Single device display (one device at a time on canvas)
+-  Real-time device settings update
+-  Preset save/load/delete functionality
+-  Toast notifications for all actions
+-  Dark theme UI with smooth animations
+-  Drag and drop interface
 
 
-#### Light Device
-- **Power Button**: Toggle light on/off
-- **Brightness Slider**: Adjust brightness (0-100%)
-- **Color Temperature**: Choose from 6 color options
-- **Visual Feedback**: Real-time glow effect and color changes
+### Backend (Laravel)
+- laravel/framework: ^10.0
+- PHP: ^8.1
 
-#### Fan Device
-- **Power Button**: Toggle fan on/off
-- **Speed Slider**: Adjust speed (0-100%)
-- **Visual Feedback**: Animated spinning blades with speed-based rotation
+### Frontend (React)
+- react: ^19.0.0
+- react-redux: ^9.1.2
+- @reduxjs/toolkit: ^2.3.0
+- react-dnd: ^16.0.1
+- react-toastify: ^10.0.6
+- axios: ^1.7.9
+- tailwindcss: ^3.4.17
 
-### Preset Management
-1. **Save Preset**: Enter a name and save current device configuration
-2. **Load Preset**: Drag and drop a preset onto the canvas to restore its configuration
-3. **Delete Preset**: Remove presets you no longer need
 

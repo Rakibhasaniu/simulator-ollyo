@@ -47,6 +47,15 @@ const deviceService = {
     }
   },
 
+  updateDevice: async (id, deviceData) => {
+    try {
+      const response = await api.put(`/devices/${id}`, deviceData);
+      return response.data.data;
+    } catch (error) {
+      throw error.response?.data || error.message;
+    }
+  },
+
   deleteAllDevices: async () => {
     try {
       const response = await api.delete('/devices');

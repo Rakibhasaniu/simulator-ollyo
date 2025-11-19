@@ -62,6 +62,18 @@ export const deleteDevice = createAsyncThunk(
   }
 );
 
+export const updateDevice = createAsyncThunk(
+  'devices/updateDevice',
+  async ({ id, deviceData }, { rejectWithValue }) => {
+    try {
+      const response = await deviceService.updateDevice(id, deviceData);
+      return response;
+    } catch (error) {
+      return rejectWithValue(error);
+    }
+  }
+);
+
 export const deleteAllDevices = createAsyncThunk(
   'devices/deleteAllDevices',
   async (_, { rejectWithValue }) => {
@@ -162,6 +174,31 @@ const devicesSlice = createSlice({
       .addCase(deleteDevice.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload || 'Failed to delete device';
+      })
+      .addCase(updateDevice.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(updateDevice.fulfilled, (state, action) => {
+        state.loading = false;
+        const updatedDevice = action.payload;
+        const index = state.devices.findIndex(d => d.id === updatedDevice.id);
+        if (index !== -1) {
+          state.devices[index] = {
+            id: updatedDevice.id,
+            type: updatedDevice.type,
+            name: updatedDevice.name,
+            position: {
+              x: updatedDevice.position_x || 100,
+              y: updatedDevice.position_y || 100
+            },
+            settings: updatedDevice.settings
+          };
+        }
+      })
+      .addCase(updateDevice.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload || 'Failed to update device';
       })
       .addCase(deleteAllDevices.pending, (state) => {
         state.loading = true;

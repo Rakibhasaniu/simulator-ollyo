@@ -1,6 +1,6 @@
 import React from 'react';
 import { useDispatch } from 'react-redux';
-import { deleteDevice } from '../../store/devicesSlice';
+import { updateDevice } from '../../store/devicesSlice';
 import { toast } from 'react-toastify';
 
 const COLOR_OPTIONS = [
@@ -16,13 +16,47 @@ const LightDevice = ({ device }) => {
   const dispatch = useDispatch();
   const { settings } = device;
 
-  const handleBrightnessChange = (e) => {
+  const handleBrightnessChange = async (e) => {
     const newBrightness = parseInt(e.target.value);
-    // Local state change only - update functionality removed
+    try {
+      await dispatch(updateDevice({
+        id: device.id,
+        deviceData: {
+          type: device.type,
+          name: device.name,
+          settings: {
+            ...settings,
+            brightness: newBrightness,
+          },
+          position_x: device.position?.x || 100,
+          position_y: device.position?.y || 100,
+        },
+      })).unwrap();
+    } catch (error) {
+      console.error('Failed to update brightness:', error);
+      toast.error('Failed to update brightness');
+    }
   };
 
-  const handleColorChange = (colorName) => {
-    // Local state change only - update functionality removed
+  const handleColorChange = async (colorName) => {
+    try {
+      await dispatch(updateDevice({
+        id: device.id,
+        deviceData: {
+          type: device.type,
+          name: device.name,
+          settings: {
+            ...settings,
+            colorTemp: colorName,
+          },
+          position_x: device.position?.x || 100,
+          position_y: device.position?.y || 100,
+        },
+      })).unwrap();
+    } catch (error) {
+      console.error('Failed to update color:', error);
+      toast.error('Failed to update color');
+    }
   };
 
   const getCurrentColor = () => {
