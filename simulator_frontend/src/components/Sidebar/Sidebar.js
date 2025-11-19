@@ -1,8 +1,10 @@
-import React, { useState } from 'react';
 import { useDrag } from 'react-dnd';
 import { useSelector, useDispatch } from 'react-redux';
-import { savePreset, deletePreset } from '../../store/presetsSlice';
-import { FaLightbulb, FaFan, FaSave, FaTrash } from 'react-icons/fa';
+import { deletePreset } from '../../store/presetsSlice';
+import { deleteAllDevices } from '../../store/devicesSlice';
+import { toast } from 'react-toastify';
+import { FaLightbulb, FaFan, FaTrash } from 'react-icons/fa';
+import { useState } from 'react';
 
 const ITEM_TYPES = {
   DEVICE: 'device',
@@ -55,7 +57,9 @@ const DraggablePreset = ({ preset, onDelete }) => {
       <div className="flex flex-col gap-1 flex-1">
         <div className="text-sm font-medium">{preset.name}</div>
         <div className="text-xs text-white/50">
-          {Array.isArray(preset.devices) ? preset.devices.length : 0} devices
+          {Array.isArray(preset.devices) && preset.devices.length > 0
+            ? `${preset.devices[0].type.charAt(0).toUpperCase() + preset.devices[0].type.slice(1)}`
+            : 'No device'}
         </div>
       </div>
       <button
@@ -70,73 +74,48 @@ const DraggablePreset = ({ preset, onDelete }) => {
 
 const Sidebar = () => {
   const dispatch = useDispatch();
-  const devices = useSelector((state) => state.devices.devices);
   const presets = useSelector((state) => state.presets.presets || []);
-  const [presetName, setPresetName] = useState('');
-  const [showSaveForm, setShowSaveForm] = useState(false);
+  const [deleteConfirmation, setDeleteConfirmation] = useState(null);
 
-  const handleSavePreset = async () => {
-    if (!presetName.trim()) {
-      alert('Please enter a preset name');
-      return;
-    }
+  const handleDeletePreset = async (presetId) => {
+    const preset = presets.find(p => p.id === presetId);
+    setDeleteConfirmation({ presetId, presetName: preset?.name || 'this preset' });
+  };
 
-    if (devices.length === 0) {
-      alert('No devices to save');
-      return;
-    }
+  const handleConfirmDelete = async (clearCanvas) => {
+    const { presetId } = deleteConfirmation;
 
     try {
-      await dispatch(savePreset({
-        name: presetName,
-        devices: devices,
-      })).unwrap();
+      await dispatch(deletePreset(presetId)).unwrap();
 
-      setPresetName('');
-      setShowSaveForm(false);
-      alert('Preset saved successfully!');
+      if (clearCanvas) {
+        await dispatch(deleteAllDevices()).unwrap();
+      }
+
+      setDeleteConfirmation(null);
+      toast.success('Preset deleted successfully!');
     } catch (error) {
-      alert('Failed to save preset: ' + error);
+      toast.error('Failed to delete preset: ' + error);
     }
   };
 
-  const handleDeletePreset = async (presetId) => {
-    if (window.confirm('Are you sure you want to delete this preset?')) {
-      try {
-        await dispatch(deletePreset(presetId)).unwrap();
-      } catch (error) {
-        alert('Failed to delete preset: ' + error);
-      }
-    }
+  const handleCancelDelete = () => {
+    setDeleteConfirmation(null);
   };
 
   return (
-    <div className="bg-dark-sidebar w-[280px] h-screen overflow-y-auto p-5 border-r border-white/10 flex flex-col gap-6 scrollbar-custom">
-      {/* Header */}
-      <div className="pb-4 border-b border-white/10">
-        <h2 className="m-0 text-lg font-semibold">Essential UI Element</h2>
-      </div>
-
-      {/* Device Library - Light */}
+    <div className="bg-dark-sidebar w-[240px] h-screen overflow-y-auto p-4 border-r border-white/10 flex flex-col gap-6 scrollbar-custom">
+      {/* Devices Section */}
       <div className="flex flex-col gap-3">
-        <h3 className="text-[13px] font-medium text-white/60 uppercase tracking-wide m-0">
-          Light Control Panel
+        <h3 className="text-sm font-medium text-white/70 m-0">
+          Devices
         </h3>
-        <div className="flex flex-col gap-2.5">
+        <div className="flex flex-col gap-2">
           <DraggableDevice
             type="light"
             icon={<FaLightbulb />}
             label="Light"
           />
-        </div>
-      </div>
-
-      {/* Device Library - Fan */}
-      <div className="flex flex-col gap-3">
-        <h3 className="text-[13px] font-medium text-white/60 uppercase tracking-wide m-0">
-          Controls for Fan
-        </h3>
-        <div className="flex flex-col gap-2.5">
           <DraggableDevice
             type="fan"
             icon={<FaFan />}
@@ -145,59 +124,16 @@ const Sidebar = () => {
         </div>
       </div>
 
-      {/* Preset Management */}
+      {/* Saved Presets Section */}
       <div className="flex flex-col gap-3">
-        <div className="flex justify-between items-center">
-          <h3 className="text-[13px] font-medium text-white/60 uppercase tracking-wide m-0">
-            Saved Presets
-          </h3>
-          <button
-            className="bg-accent-blue border-none text-white w-8 h-8 rounded-md cursor-pointer flex items-center justify-center transition-all hover:bg-[#4a9ee0] hover:scale-105"
-            onClick={() => setShowSaveForm(!showSaveForm)}
-            title="Save current configuration"
-          >
-            <FaSave />
-          </button>
-        </div>
-
-        {/* Save Preset Form */}
-        {showSaveForm && (
-          <div className="bg-dark-card rounded-lg p-4 flex flex-col gap-2.5">
-            <input
-              type="text"
-              placeholder="Enter preset name..."
-              value={presetName}
-              onChange={(e) => setPresetName(e.target.value)}
-              className="bg-dark-border border border-[#4a4e69] rounded-md px-3 py-2.5 text-white text-sm outline-none transition-all
-                focus:border-accent-blue focus:shadow-[0_0_0_2px_rgba(94,179,246,0.1)] placeholder:text-white/40"
-              onKeyPress={(e) => e.key === 'Enter' && handleSavePreset()}
-            />
-            <div className="flex gap-2">
-              <button
-                onClick={handleSavePreset}
-                className="flex-1 px-3 py-2 rounded-md border-none text-[13px] font-medium cursor-pointer transition-all
-                  bg-accent-blue text-white hover:bg-[#4a9ee0]"
-              >
-                Save
-              </button>
-              <button
-                onClick={() => {
-                  setShowSaveForm(false);
-                  setPresetName('');
-                }}
-                className="flex-1 px-3 py-2 rounded-md text-[13px] font-medium cursor-pointer transition-all
-                  bg-transparent text-white/70 border border-[#4a4e69] hover:bg-white/5 hover:text-white"
-              >
-                Cancel
-              </button>
-            </div>
-          </div>
-        )}
+        <h3 className="text-sm font-medium text-white/70 m-0">
+          Saved Presets
+        </h3>
 
         {/* Presets List */}
-        <div className="flex flex-col gap-2 max-h-[300px] overflow-y-auto scrollbar-custom">
+        <div className="flex flex-col gap-2">
           {presets.length === 0 ? (
-            <div className="text-center py-5 text-white/40 text-[13px]">No saved presets</div>
+            <div className="text-center py-8 text-white/40 text-xs">Nothing added yet</div>
           ) : (
             presets.map((preset) => (
               <DraggablePreset
@@ -209,6 +145,42 @@ const Sidebar = () => {
           )}
         </div>
       </div>
+
+      {/* Delete Confirmation Modal */}
+      {deleteConfirmation && (
+        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50">
+          <div className="bg-dark-card border-2 border-dark-border rounded-xl p-6 max-w-md w-full mx-4 shadow-2xl">
+            <h3 className="text-lg font-semibold mb-3">Delete Preset</h3>
+            <p className="text-sm text-white/70 mb-6">
+              Are you sure you want to delete "{deleteConfirmation.presetName}"?
+            </p>
+            <p className="text-sm text-white/60 mb-6">
+              Do you also want to clear all devices from the canvas?
+            </p>
+
+            <div className="flex flex-col gap-2">
+              <button
+                onClick={() => handleConfirmDelete(true)}
+                className="bg-accent-red hover:bg-accent-red/80 text-white px-4 py-2.5 rounded-lg font-medium transition-all"
+              >
+                Delete Preset & Clear Canvas
+              </button>
+              <button
+                onClick={() => handleConfirmDelete(false)}
+                className="bg-accent-blue hover:bg-accent-blue/80 text-white px-4 py-2.5 rounded-lg font-medium transition-all"
+              >
+                Delete Preset Only
+              </button>
+              <button
+                onClick={handleCancelDelete}
+                className="bg-transparent border border-dark-border hover:bg-white/5 text-white px-4 py-2.5 rounded-lg font-medium transition-all"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
